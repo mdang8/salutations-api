@@ -18,29 +18,37 @@ exports.handler = (event, context, callback) => {
                     body = JSON.parse(body);
                 } catch(err) {
                     console.error("Error with parsing JSON body.");
-                    return;
+                    context.fail("Error on upload.");
                 }
 
-                addRecord(body);
+                updateRecord(body);
             });
         });
 
-    var addRecord = function(data) {
-        var id = data['salutationsData'].length;  // index starts at 0
+    var updateRecord = function(data) {
         var name = event.name !== undefined ? event.name : '';
         var greeting = event.greeting !== undefined ? event.greeting : '';
         var gender = event.gender !== undefined ? event.gender : '';
         var message = event.message !== undefined ? event.message : '';
 
-        var newRecord = {
-            "id": id.toString(),
+        var parameters = {
             "name": name,
             "greeting": greeting,
             "gender": gender,
             "message": message
+        };
+
+        // for each parameter name-key
+        for (var p in parameters) {
+            if (parameters[p] !== '') {
+                // for each object in the JSON data
+                data['salutationsData'].forEach(function(record) {
+                    // update the object's parameter value
+                    record[p] = record[p] !== undefined ? parameters[p] : '';
+                });
+            }
         }
 
-        data['salutationsData'].push(newRecord);
         writeData(JSON.stringify(data));
     }
 
@@ -74,6 +82,6 @@ exports.handler = (event, context, callback) => {
             context.fail("Error on upload.");
         }
 
-        context.done(null, "Successfully created record.");
+        context.done(null, "Successfully updated record.");
     }
 };

@@ -21,26 +21,20 @@ exports.handler = (event, context, callback) => {
                     return;
                 }
 
-                addRecord(body);
+                deleteRecord(body);
             });
         });
 
-    var addRecord = function(data) {
-        var id = data['salutationsData'].length;  // index starts at 0
-        var name = event.name !== undefined ? event.name : '';
-        var greeting = event.greeting !== undefined ? event.greeting : '';
-        var gender = event.gender !== undefined ? event.gender : '';
-        var message = event.message !== undefined ? event.message : '';
+    var deleteRecord = function(data) {
+        var id = 0;
 
-        var newRecord = {
-            "id": id.toString(),
-            "name": name,
-            "greeting": greeting,
-            "gender": gender,
-            "message": message
-        }
+        data['salutationsData'].forEach(function(obj) {
+            if (obj.id == id) {
+                var index = data['salutationsData'].indexOf(obj);
+                data['salutationsData'].splice(index, 1);
+            }
+        });
 
-        data['salutationsData'].push(newRecord);
         writeData(JSON.stringify(data));
     }
 
@@ -74,6 +68,6 @@ exports.handler = (event, context, callback) => {
             context.fail("Error on upload.");
         }
 
-        context.done(null, "Successfully created record.");
+        context.done(null, "Successfully deleted record.");
     }
 };
